@@ -2,6 +2,8 @@ const inquirer = require("inquirer");
 const chalk = require("chalk");
 
 const fs = require("fs");
+const { default: Choices } = require("inquirer/lib/objects/choices");
+const { log } = require("console");
 
 console.log("Módulos inicializados com sucesso");
 
@@ -28,9 +30,11 @@ function menu() {
             const op = resp["action"];
             console.log(op);
             if (op === "Pipeline de Vendas") {
+                exibirPipeline();
             } else if (op === "Cadastrar Lead") {
                 cadastrarLead();
             } else if (op === "Registrar atividade") {
+                registrarAtividade();
             } else if (op === "Atualizar Lead") {
             } else if (op === "Relatório do funil de vendas") {
             } else if (op === "sair") {
@@ -41,6 +45,15 @@ function menu() {
             console.log(err);
         });
 }
+
+function exibirPipeline() {
+    console.log(chalk.gray("Contato inicial"));
+    console.log(chalk.gray("Proposta apresentada"));
+    console.log(chalk.gray("Negociação"));
+    console.log(chalk.gray("Fechamento"));
+    menu();
+}
+
 function cadastrarLead() {
     console.log(chalk.bgGreen.black("Bem-vindo ao CRM"));
     console.log(chalk.green("Opções"));
@@ -73,9 +86,121 @@ function criarLead() {
                     console.log(err);
                 }
             );
+            console.log(chalk.green("Lead criado com sucesso"));
             menu();
         })
         .catch((err) => {
             console.log(err);
         });
+}
+
+function registrarAtividade(params) {
+    inquirer
+        .prompt([
+            {
+                name: "nomeLead",
+                message: "Qual lead deseja atualizar?",
+            },
+        ])
+        .then((resp) => {
+            const nomeLead = resp["nomeLead"];
+            if (!verificaLead(nomeLead)) {
+                return registrarAtividade();
+            }
+            criarAtividade(nomeLead);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+function verificaLead(nomeLead) {
+    if (!fs.existsSync(`leads/${nomeLead}.json`)) {
+        console.log(chalk.bgRed.black("Este lead não existe"));
+        return false;
+    }
+    return true;
+}
+
+function criarAtividade(nomeLead) {
+    inquirer
+        .prompt([
+            {
+                name: "nomeVendedor",
+                message: "Digite o nome do vendedor: ",
+            },
+            {
+                type: "list",
+                name: "statusFunil",
+                message: "Status do funil",
+                choices: [
+                    "Inicio",
+                    "Proposta",
+                    "Negociação",
+                    "Fechamento",
+                    "Historico",
+                ],
+            },
+            {
+                name: "historico",
+                message: "Digite o historico da atividade",
+            },
+        ])
+        .then((resp) => {
+            resp.nomeLead = nomeLead;
+            const nomeVendedor = resp["nomeVendedor"];
+            const status = resp["statusFunil"];
+            const historico = resp["historico"];
+            const data = new Date();
+            const ano = data.getFullYear();
+            const mes = data.getMonth();
+            const dia = data.getDate();
+            const hora = data.getHours();
+            const min = data.getMinutes();
+            const seg = data.getSeconds();
+            const logAtividade = "log" + dia + mes + ano + hora + min + seg;
+            if (!fs.existsSync("atividades")) {
+                fs.mkdirSync("atividades");
+            }
+            let jsonAtividade = `{"nomeVendedor":"${nomeVendedor}","nomeLead":"${nomeLead}","statusFunil":"${status}","historico":"${historico}","log":"${logAtividade}"}`;
+            fs.writeFileSync(
+                `atividades/${logAtividade}.json`,
+                jsonAtividade,
+                (err) => {
+                    console.log(err);
+                }
+            );
+            console.log(chalk.green("Atividade criada com sucesso"));
+            atualizarHistorico(nomeLead, historico);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+function atualizarHistorico(nomeLead, historico) {
+    const leadObj = getLead(nomeLead);
+    if (!historico) {
+        console.log(chalk.bgRed.black("Ocorreu um erro, tente novamente"));
+        menu();
+    } else {
+        leadObj.historico = leadObj.historico + "\n" + historico;
+        fs.writeFileSync(
+            `leads/${nomeLead}.json`,
+            JSON.stringify(leadObj),
+            (err) => {
+                console.log(err);
+            }
+        );
+        console.log(chalk.green("Histórico atualizado com sucesso"));
+        menu();
+    }
+}
+
+function getLead(nomeLead) {
+    const leadJSON = fs.readFileSync(`leads/${nomeLead}.json`, {
+        encoding: "utf-8",
+        flag: "r",
+    });
+    return JSON.parse(leadJSON);
 }
