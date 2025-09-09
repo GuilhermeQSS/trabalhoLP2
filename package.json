@@ -1,25 +1,25 @@
 {
-  "name": "trabalholp2",
-  "version": "1.0.0",
-  "description": "Trabalho de linguagen de programação 2",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GuilhermeQSS/trabalhoLP2.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/GuilhermeQSS/trabalhoLP2/issues"
-  },
-  "homepage": "https://github.com/GuilhermeQSS/trabalhoLP2#readme",
-  "dependencies": {
-    "bootstrap": "^5.3.8",
-    "chalk": "^4.1.2",
-    "inquirer": "^8.1.2"
-  }
+    "name": "trabalholp2",
+    "version": "1.0.0",
+    "description": "Trabalho de linguagen de programação 2",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node --watch index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/GuilhermeQSS/trabalhoLP2.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/GuilhermeQSS/trabalhoLP2/issues"
+    },
+    "homepage": "https://github.com/GuilhermeQSS/trabalhoLP2#readme",
+    "dependencies": {
+        "bootstrap": "^5.3.8",
+        "chalk": "^4.1.2",
+        "inquirer": "^8.1.2"
+    }
 }

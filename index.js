@@ -4,7 +4,7 @@ const url = require("url");
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const port = 4000;
+const port = 3000;
 
 function converterTipo(arquivo) {
     let extensao = path.extname(arquivo);
@@ -18,13 +18,15 @@ function converterTipo(arquivo) {
     }
 }
 const server = http.createServer((req, res) => {
+    let caminho = url.parse(req.url).pathname;
     let arquivo;
     let tipoDoArquivo;
-    if (req.url === "/") {
+
+    if (caminho === "/") {
         arquivo = "./public/index.html";
         tipoDoArquivo = "text/html";
     } else {
-        arquivo = "./public" + req.url;
+        arquivo = "./public" + caminho;
         if (!fs.existsSync(arquivo)) {
             arquivo = "./public/404.html";
             tipoDoArquivo = "text/html";
@@ -42,7 +44,7 @@ server.listen(port, () => {
     console.log(`servidor em http://localhost:${port}`);
 });
 
-menu();
+//menu();
 
 function menu() {
     inquirer
