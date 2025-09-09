@@ -1,11 +1,46 @@
 const inquirer = require("inquirer");
 const chalk = require("chalk");
-
+const url = require("url");
+const http = require("http");
 const fs = require("fs");
-const { default: Choices } = require("inquirer/lib/objects/choices");
-const { log } = require("console");
+const path = require("path");
+const port = 4000;
 
-console.log("Módulos inicializados com sucesso");
+function converterTipo(arquivo) {
+    let extensao = path.extname(arquivo);
+    switch (extensao) {
+        case ".css":
+            return "text/css";
+        case ".html":
+            return "text/html";
+        case ".js":
+            return "text/javascript";
+    }
+}
+const server = http.createServer((req, res) => {
+    let arquivo;
+    let tipoDoArquivo;
+    if (req.url === "/") {
+        arquivo = "./public/index.html";
+        tipoDoArquivo = "text/html";
+    } else {
+        arquivo = "./public" + req.url;
+        if (!fs.existsSync(arquivo)) {
+            arquivo = "./public/404.html";
+            tipoDoArquivo = "text/html";
+        } else {
+            tipoDoArquivo = converterTipo(arquivo);
+        }
+    }
+    fs.readFile(arquivo, (err, conteudoDoArquivo) => {
+        res.writeHead(200, { "content-type": tipoDoArquivo });
+        res.write(conteudoDoArquivo);
+        res.end();
+    });
+});
+server.listen(port, () => {
+    console.log(`servidor em http://localhost:${port}`);
+});
 
 menu();
 
@@ -21,6 +56,7 @@ function menu() {
                     "Cadastrar Lead",
                     "Registrar atividade",
                     "Atualizar Lead",
+                    "Consultar Lead",
                     "Relatório do funil de vendas",
                     "sair",
                 ],
@@ -36,6 +72,10 @@ function menu() {
             } else if (op === "Registrar atividade") {
                 registrarAtividade();
             } else if (op === "Atualizar Lead") {
+            } else if (op === "Consultar Lead") {
+                consultarLead();
+            } else if (op === "Remover Lead") {
+                removerLead();
             } else if (op === "Relatório do funil de vendas") {
             } else if (op === "sair") {
                 process.exit();
@@ -203,4 +243,66 @@ function getLead(nomeLead) {
         flag: "r",
     });
     return JSON.parse(leadJSON);
+}
+
+function consultarLead() {
+    inquirer
+        .prompt([
+            {
+                name: "nomeLead",
+                message: "Qual o nome do lead que deseja consultar?",
+            },
+        ])
+        .then((resp) => {
+            const nomeLead = resp["nomeLead"];
+            if (!verificaLead(nomeLead)) {
+                return consultarLead();
+            }
+            const leadObj = getLead(nomeLead);
+            console.log(
+                chalk.bgBlue.black(
+                    `O histórico do lead ${nomeLead} é: ${leadObj.historico}`
+                )
+            );
+            menu();
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+function removerLead() {
+    inquirer
+        .prompt([
+            {
+                name: "nomeLead",
+                message: "Digite o nome do lead que deseja remover:",
+            },
+        ])
+        .then((resp) => {
+            const nomeLead = resp["nomeLead"];
+            if (!verificaLead(nomeLead)) {
+                return removerLead();
+            }
+            inquirer
+                .prompt([
+                    {
+                        type: "confirm",
+                        name: "confirmar",
+                        message: "Deseja realmente remover o lead? ",
+                    },
+                ])
+                .then((resp) => {
+                    if (resp["confirmar"] === true) {
+                        fs.unlinkSync(`leads/${nomeLead}.json`, (err) => {
+                            console.log(err);
+                        });
+                        console.log(chalk.green("Lead excluido com sucesso"));
+                    }
+                    menu();
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 }
