@@ -21,24 +21,28 @@ const server = http.createServer((req, res) => {
     let caminho = url.parse(req.url).pathname;
     let arquivo;
     let tipoDoArquivo;
-
-    if (caminho === "/") {
-        arquivo = "./public/index.html";
-        tipoDoArquivo = "text/html";
+    if (req.method == "POST") {
+        if (req.url == "/cadastrarLead") {
+        }
     } else {
-        arquivo = "./public" + caminho;
-        if (!fs.existsSync(arquivo)) {
-            arquivo = "./public/404.html";
+        if (caminho === "/") {
+            arquivo = "public/index.html";
             tipoDoArquivo = "text/html";
         } else {
-            tipoDoArquivo = converterTipo(arquivo);
+            arquivo = "public" + caminho;
+            if (fs.existsSync(arquivo) && arquivo.includes(".")) {
+                tipoDoArquivo = converterTipo(arquivo);
+            } else {
+                arquivo = "public/404.html";
+                tipoDoArquivo = "text/html";
+            }
         }
+        fs.readFile(arquivo, (err, conteudoDoArquivo) => {
+            res.writeHead(200, { "content-type": tipoDoArquivo });
+            res.write(conteudoDoArquivo);
+            res.end();
+        });
     }
-    fs.readFile(arquivo, (err, conteudoDoArquivo) => {
-        res.writeHead(200, { "content-type": tipoDoArquivo });
-        res.write(conteudoDoArquivo);
-        res.end();
-    });
 });
 server.listen(port, () => {
     console.log(`servidor em http://localhost:${port}`);

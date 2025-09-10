@@ -3,81 +3,101 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="./CSS/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/CSS/dist/css/bootstrap.min.css" />
         <title>Gestora fiomentilhas</title>
     </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/">Fiomentilhas</a>
-                <button
-                    class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div
-                    class="collapse navbar-collapse"
-                    id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a
-                                class="nav-link active"
-                                aria-current="page"
-                                href="/">
-                                Home
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a
-                                class="nav-link dropdown-toggle"
-                                href="#"
-                                id="navbarDropdownMenuLink"
-                                role="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Leads
-                            </a>
-                            <ul
-                                class="dropdown-menu"
-                                aria-labelledby="navbarDropdownMenuLink">
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Cadastro
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Atualizar
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Consultar
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Pipeline de vendas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Registrar atividade</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                Relatório do funil de vendas
-                            </a>
-                        </li>
-                    </ul>
+    <body class="bg-black">
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">Fiomentilhas</a>
+                    <button
+                        class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div
+                        class="collapse navbar-collapse"
+                        id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item dropdown">
+                                <a
+                                    class="nav-link dropdown-toggle active"
+                                    aria-current="true"
+                                    href="#"
+                                    id="navbarDropdownMenuLink"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Leads
+                                </a>
+                                <ul
+                                    class="dropdown-menu"
+                                    aria-labelledby="navbarDropdownMenuLink">
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="/cadastrarLead.html">
+                                            Cadastro
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="/atualizarLead.html">
+                                            Atualizar
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="/consultarLead.html">
+                                            Consultar
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a
+                                    class="nav-link"
+                                    href="/pipelineDeVendas.html">
+                                    Pipeline de vendas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a
+                                    class="nav-link"
+                                    href="/registrarAtividade.html">
+                                    Registrar atividade
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a
+                                    class="nav-link"
+                                    href="/relFunilDeVendas.html">
+                                    Relatório do funil de vendas
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
+            </nav>
+        </header>
+        <main class="d-flex flex-column min-vh-100">
+            <div class="border border-5 rounded-5 m-3 p-5 bg-light">
+                <h1>Seja bem vindo a Fiomentilhas</h1>
+                <hr />
+                <p>
+                    Gerencie leads com excelência, e registre todas as suas
+                    atividades
+                </p>
             </div>
-        </nav>
+        </main>
     </body>
-    <script src="./CSS/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./JS/consultarLead.js"></script>
+    <script src="/CSS/dist/js/bootstrap.bundle.min.js"></script>
 </html>

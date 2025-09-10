@@ -27,8 +27,7 @@
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item dropdown">
                                 <a
-                                    class="nav-link dropdown-toggle active"
-                                    aria-current="true"
+                                    class="nav-link dropdown-toggle"
                                     href="#"
                                     id="navbarDropdownMenuLink"
                                     role="button"
@@ -64,7 +63,8 @@
                             </li>
                             <li class="nav-item">
                                 <a
-                                    class="nav-link"
+                                    class="nav-link active"
+                                    aria-current="true"
                                     href="/pipelineDeVendas.html">
                                     Pipeline de vendas
                                 </a>
@@ -89,62 +89,15 @@
             </nav>
         </header>
         <main class="d-flex flex-column min-vh-100">
-            <form
-                class="border border-5 rounded-5 m-3 p-5 bg-light needs-validation"
-                method="post"
-                novalidate>
-                <div class="mb-3">
-                    <label for="nome" class="form-label">Nome do lead</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="nome"
-                        required />
-                    <div class="invalid-feedback">
-                        Por favor selecione um nome
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="telefone" class="form-label">Telefone</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="telefone"
-                        required />
-                    <div class="invalid-feedback">
-                        Por favor selecione um telefone
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="endereco" class="form-label">Endereço</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="endereco"
-                        required />
-                    <div class="invalid-feedback">
-                        Por favor selecione um endereço
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" required>
-                        <option selected disabled value="">
-                            Escolha um...
-                        </option>
-                        <option value="Inicio">Inicio</option>
-                        <option value="Proposta">Proposta</option>
-                        <option value="Negociacao">Negociação</option>
-                        <option value="Fechamento">Fechamento</option>
-                    </select>
-                    <div class="invalid-feedback">
-                        Por favor selecione um status
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Cadastrar</button>
-            </form>
+            <div class="border border-5 rounded-5 m-3 p-5 bg-light">
+                <h1>Seja bem vindo a Fiomentilhas</h1>
+                <hr />
+                <p>
+                    Gerencie leads com excelência, e registre todas as suas
+                    atividades
+                </p>
+            </div>
         </main>
     </body>
     <script src="/CSS/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/JS/cadastrarLead.js"></script>
 </html>
