@@ -91,14 +91,16 @@
         <main class="d-flex flex-column min-vh-100">
             <form
                 class="border border-5 rounded-5 m-3 p-5 bg-light needs-validation"
-                method="post"
+                method="get"
+                action="/cadastrarLead"
                 novalidate>
                 <div class="mb-3">
+                    <input name="post" value=" " hidden />
                     <label for="nome" class="form-label">Nome do lead</label>
                     <input
                         type="text"
                         class="form-control"
-                        id="nome"
+                        name="nome"
                         required />
                     <div class="invalid-feedback">
                         Por favor selecione um nome
@@ -109,7 +111,7 @@
                     <input
                         type="text"
                         class="form-control"
-                        id="telefone"
+                        name="telefone"
                         required />
                     <div class="invalid-feedback">
                         Por favor selecione um telefone
@@ -120,7 +122,7 @@
                     <input
                         type="text"
                         class="form-control"
-                        id="endereco"
+                        name="endereco"
                         required />
                     <div class="invalid-feedback">
                         Por favor selecione um endereço
@@ -128,7 +130,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" required>
+                    <select class="form-select" name="status" required>
                         <option selected disabled value="">
                             Escolha um...
                         </option>
@@ -146,5 +148,5 @@
         </main>
     </body>
     <script src="/CSS/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/JS/cadastrarLead.js"></script>
+    <script src="/JS/validarCadastroLead.js"></script>
 </html>

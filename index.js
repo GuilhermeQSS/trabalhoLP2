@@ -18,28 +18,58 @@ function converterTipo(arquivo) {
     }
 }
 const server = http.createServer((req, res) => {
-    let caminho = url.parse(req.url).pathname;
+    const urlInfo = url.parse(req.url, true);
+    let caminho = urlInfo.pathname;
+    let consulta = urlInfo.query;
     let arquivo;
-    let tipoDoArquivo;
-    if (req.method == "POST") {
-        if (req.url == "/cadastrarLead") {
-        }
-    } else {
-        if (caminho === "/") {
-            arquivo = "public/index.html";
-            tipoDoArquivo = "text/html";
-        } else {
-            arquivo = "public" + caminho;
-            if (fs.existsSync(arquivo) && arquivo.includes(".")) {
-                tipoDoArquivo = converterTipo(arquivo);
-            } else {
-                arquivo = "public/404.html";
-                tipoDoArquivo = "text/html";
+    if (consulta.post) {
+        if (caminho === "/cadastrarLead") {
+            if (!fs.existsSync("db")) {
+                fs.mkdirSync("db");
             }
+            if (!fs.existsSync("db/leads.json")) {
+                fs.writeFileSync("db/leads.json", "[]");
+            }
+            const novoLead = {
+                id: Date.now(),
+                nome: consulta.nome,
+                telefone: consulta.telefone,
+                endereco: consulta.endereco,
+                status: consulta.status,
+                historico: "",
+            };
+            const leads = JSON.parse(fs.readFileSync("db/leads.json", "utf-8"));
+            if (!leads.some((l) => l.nome === consulta.nome)) {
+                leads.push(novoLead);
+                fs.writeFileSync(
+                    "db/leads.json",
+                    JSON.stringify(leads),
+                    (err) => {
+                        console.log(err);
+                    }
+                );
+            }
+            res.writeHead(302, { Location: "/cadastrarLead.html" });
+            res.end();
+            return;
         }
-        fs.readFile(arquivo, (err, conteudoDoArquivo) => {
-            res.writeHead(200, { "content-type": tipoDoArquivo });
-            res.write(conteudoDoArquivo);
+    }
+    if (caminho === "/") {
+        arquivo = "public/index.html";
+    } else {
+        arquivo = "public" + caminho;
+    }
+    if (fs.existsSync(arquivo) && path.extname(arquivo)) {
+        const tipoDoArquivo = converterTipo(arquivo);
+        fs.readFile(arquivo, (err, conteudo) => {
+            res.writeHead(200, { "Content-Type": tipoDoArquivo });
+            res.write(conteudo);
+            res.end();
+        });
+    } else {
+        fs.readFile("public/404.html", (err, conteudo) => {
+            res.writeHead(404, { "Content-Type": "text/html" });
+            res.write(conteudo);
             res.end();
         });
     }
