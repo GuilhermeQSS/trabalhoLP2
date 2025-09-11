@@ -15,6 +15,8 @@ function converterTipo(arquivo) {
             return "text/html";
         case ".js":
             return "text/javascript";
+        case ".ico":
+            return "image/x-icon";
     }
 }
 const server = http.createServer((req, res) => {
@@ -24,12 +26,6 @@ const server = http.createServer((req, res) => {
     let arquivo;
     if (consulta.post) {
         if (caminho === "/cadastrarLead") {
-            if (!fs.existsSync("db")) {
-                fs.mkdirSync("db");
-            }
-            if (!fs.existsSync("db/leads.json")) {
-                fs.writeFileSync("db/leads.json", "[]");
-            }
             const novoLead = {
                 id: Date.now(),
                 nome: consulta.nome,
@@ -38,17 +34,7 @@ const server = http.createServer((req, res) => {
                 status: consulta.status,
                 historico: "",
             };
-            const leads = JSON.parse(fs.readFileSync("db/leads.json", "utf-8"));
-            if (!leads.some((l) => l.nome === consulta.nome)) {
-                leads.push(novoLead);
-                fs.writeFileSync(
-                    "db/leads.json",
-                    JSON.stringify(leads),
-                    (err) => {
-                        console.log(err);
-                    }
-                );
-            }
+            cadastrarNovoLead(novoLead);
             res.writeHead(302, { Location: "/cadastrarLead.html" });
             res.end();
             return;
@@ -61,11 +47,13 @@ const server = http.createServer((req, res) => {
     }
     if (fs.existsSync(arquivo) && path.extname(arquivo)) {
         const tipoDoArquivo = converterTipo(arquivo);
-        fs.readFile(arquivo, (err, conteudo) => {
-            res.writeHead(200, { "Content-Type": tipoDoArquivo });
-            res.write(conteudo);
-            res.end();
-        });
+        let conteudo = fs.readFileSync(arquivo, "utf-8");
+        if (caminho === "/consultarLead.html") {
+            conteudo = desenharLeads(conteudo);
+        }
+        res.writeHead(200, { "Content-Type": tipoDoArquivo });
+        res.write(conteudo);
+        res.end();
     } else {
         fs.readFile("public/404.html", (err, conteudo) => {
             res.writeHead(404, { "Content-Type": "text/html" });
@@ -77,6 +65,46 @@ const server = http.createServer((req, res) => {
 server.listen(port, () => {
     console.log(`servidor em http://localhost:${port}`);
 });
+
+function getLeads() {
+    if (!fs.existsSync("db")) {
+        fs.mkdirSync("db");
+    }
+    if (!fs.existsSync("db/leads.json")) {
+        fs.writeFileSync("db/leads.json", "[]");
+    }
+    return JSON.parse(fs.readFileSync("db/leads.json", "utf-8"));
+}
+
+function desenharLeads(conteudo) {
+    const leads = getLeads();
+    let linhas = "";
+    leads.forEach((lead) => {
+        linhas += `
+            <tr>
+                <th scope="row">${lead.id}</th>
+                <td>${lead.nome}</td>
+                <td>${lead.telefone}</td>
+                <td>${lead.endereco}</td>
+                <td>${lead.status}</td>
+                <td>
+                    <button class="btn btn-danger">Excluir</button>
+                </td>
+            </tr>
+        `;
+    });
+    return conteudo.replace("<tbody></tbody>", `<tbody>${linhas}</tbody>`);
+}
+
+function cadastrarNovoLead(novoLead) {
+    const leads = getLeads();
+    if (!leads.some((l) => l.nome === novoLead.nome)) {
+        leads.push(novoLead);
+        fs.writeFileSync("db/leads.json", JSON.stringify(leads), (err) => {
+            console.log(err);
+        });
+    }
+}
 
 //menu();
 
