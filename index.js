@@ -87,6 +87,7 @@ const server = http.createServer((req, res) => {
                 "/registrarAtividade.html": desenharOpcoesComStatus,
                 "/alterarLead.html": desenharOpcoesDeLead,
                 "/pipelineDeVendas.html": desenharContagemDeStatus,
+                "/relFunilDeVendas.html": desenharLeadsOrdenado,
             };
             if (renderizadores[caminho]) {
                 conteudo = renderizadores[caminho](conteudo);
@@ -157,6 +158,51 @@ function desenharOpcoesDeLead(conteudo) {
         </option>
         ${linhas}`
     );
+}
+
+function desenharLeadsOrdenado(conteudo) {
+    let leads = getLeads();
+    let linhas = "";
+    let historico = "";
+    leads = leads.sort((a, b) => b.status - a.status);
+    const cores = {
+        0: "info",
+        1: "success",
+        2: "warning",
+        3: "danger",
+    };
+    leads.forEach((lead) => {
+        historico = "";
+        if (lead.historico) {
+            lead.historico.split(";").forEach((hist) => {
+                historico += `<li>${hist}</li>`;
+            });
+        }
+        linhas += `
+            <div class="border border-5 rounded-5 m-2 p-4 bg-light">
+                <div class="d-flex mb-3 justify-content-between align-items-center">
+                    <span>${lead.nome}</span>
+                    <span class="badge bg-${cores[lead.status]}">
+                        ${status[lead.status]}
+                    </span>
+                </div>
+                <button class="btn btn-secondary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#${
+                    lead.id
+                }" aria-expanded="false" aria-controls="collapseExample">
+                    Historico
+                </button>
+                <div class="collapse" id="${lead.id}">
+                    <div class="card card-body">
+                        <ol>
+                            ${historico}
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    return conteudo.replace("<div></div>", `${linhas}`);
 }
 
 function desenharOpcoesComStatus(conteudo) {
@@ -299,7 +345,12 @@ function avancarLead(id) {
 
 function gravarHistorico(idLead, historico) {
     let lead = getLead(idLead);
-    lead.historico = lead.historico + historico + ";";
+    if (lead.historico) {
+        lead.historico += ";" + historico;
+    } else {
+        lead.historico = historico;
+    }
+
     fs.writeFileSync(`db/leads/${idLead}.json`, JSON.stringify(lead), (err) => {
         console.log(err);
     });
