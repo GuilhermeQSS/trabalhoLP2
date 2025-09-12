@@ -101,43 +101,46 @@
             <form
                 class="border border-5 rounded-5 m-3 p-5 bg-light needs-validation"
                 method="get"
-                action="/cadastrarLead"
+                action="/alterarLead"
                 novalidate>
                 <input name="post" value=" " hidden />
                 <div class="mb-3">
-                    <label for="nome" class="form-label">Nome do lead</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        name="nome"
-                        required />
+                    <label for="id" class="form-label">Nome</label>
+                    <select class="form-select" name="id" required>
+                        <option></option>
+                    </select>
                     <div class="invalid-feedback">
                         Por favor selecione um nome
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="telefone" class="form-label">Telefone</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        name="telefone"
-                        required />
+                    <label for="campo" class="form-label">
+                        Campo que deseja alterar
+                    </label>
+                    <select class="form-select" name="campo" required>
+                        <option selected disabled value="">
+                            Escolha um campo...
+                        </option>
+                        <option value="nome">Nome</option>
+                        <option value="telefone">Telefone</option>
+                        <option value="endereco">Endereco</option>
+                    </select>
                     <div class="invalid-feedback">
-                        Por favor selecione um telefone
+                        Por favor selecione um campo para alterar
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="endereco" class="form-label">Endereço</label>
                     <input
                         type="text"
                         class="form-control"
-                        name="endereco"
+                        name="novoConteudo"
                         required />
                     <div class="invalid-feedback">
-                        Por favor selecione um endereço
+                        Por favor selecione um novo conteúdo para inserir no
+                        campo
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Cadastrar</button>
+                <button type="submit" class="btn btn-warning">Alterar</button>
             </form>
         </main>
     </body>

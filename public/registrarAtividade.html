@@ -6,13 +6,13 @@
         <link
             rel="stylesheet"
             href="/CSS/bootstrap/dist/css/bootstrap.min.css" />
-        <title>Gestora fiomentilhas</title>
+        <title>FiomentilhasCRM</title>
     </head>
     <body class="bg-black">
         <header>
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="/">Fiomentilhas</a>
+                    <a class="navbar-brand" href="/">FiomentilhasCRM</a>
                     <button
                         class="navbar-toggler"
                         type="button"
@@ -50,8 +50,15 @@
                                     <li>
                                         <a
                                             class="dropdown-item"
-                                            href="/atualizarLead.html">
-                                            Atualizar
+                                            href="/deletarLead.html">
+                                            Deletar
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="/alterarLead.html">
+                                            Alterar
                                         </a>
                                     </li>
                                     <li>
@@ -91,15 +98,62 @@
             </nav>
         </header>
         <main class="d-flex flex-column min-vh-100">
-            <div class="border border-5 rounded-5 m-3 p-5 bg-light">
-                <h1>Seja bem vindo a Fiomentilhas</h1>
-                <hr />
-                <p>
-                    Gerencie leads com excelência, e registre todas as suas
-                    atividades
-                </p>
-            </div>
+            <form
+                class="border border-5 rounded-5 m-3 p-5 bg-light needs-validation"
+                method="get"
+                action="/registrarAtividade"
+                novalidate>
+                <input name="post" value=" " hidden />
+                <div class="mb-3">
+                    <div class="mb-3">
+                        <label for="idLead" class="form-label">
+                            Nome do lead
+                        </label>
+                        <select class="form-select" name="idLead" required>
+                            <option></option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Por favor selecione um nome
+                        </div>
+                    </div>
+                    <label for="nomeVendedor" class="form-label">
+                        Nome do vendedor
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="nomeVendedor"
+                        required />
+                    <div class="invalid-feedback">
+                        Por favor selecione um nome do vendedor
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="historico" class="form-label">Historico</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="historico"
+                        required />
+                    <div class="invalid-feedback">
+                        Por favor informe um historico
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="avancar" />
+                        <label class="form-check-label" for="avancar">
+                            Avançar status
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Publicar</button>
+            </form>
         </main>
     </body>
     <script src="/CSS/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/JS/validarForms.js"></script>
 </html>

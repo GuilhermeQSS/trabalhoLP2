@@ -19,7 +19,6 @@
     "homepage": "https://github.com/GuilhermeQSS/trabalhoLP2#readme",
     "dependencies": {
         "bootstrap": "^5.3.8",
-        "bootstrap-icons": "^1.13.1",
         "chalk": "^4.1.2",
         "inquirer": "^8.1.2"
     }
