@@ -68,19 +68,13 @@ const server = http.createServer((req, res) => {
                 res.end();
                 break;
             case "/registrarAtividade":
-                if (consulta.avancar) {
-                    avancarLead(consulta.nome);
-                }
-                gravarHistorico(
-                    consulta.nome,
-                    consulta.nomeVendedor,
-                    consulta.historico
-                );
-                gerarAtividade(
-                    consulta.nome,
-                    consulta.nomeVendedor,
-                    consulta.historico
-                );
+                const atividade = {
+                    nome: consulta.nome,
+                    nomeVendedor: consulta.nomeVendedor,
+                    historico: consulta.historico,
+                    avancar: consulta.avancar,
+                };
+                registrarAtividade(atividade);
                 res.writeHead(302, { Location: "/registrarAtividade.html" });
                 res.end();
                 break;
@@ -140,9 +134,8 @@ function getLead(nome) {
 }
 
 function desenharTabelaLeads(conteudo) {
-    const leads = getLeads();
     let linhas = "";
-    leads.forEach((lead) => {
+    getLeads().forEach((lead) => {
         linhas += `
             <tr>
                 <th scope="row">${lead.id}</th>
@@ -186,7 +179,7 @@ function desenharLeadsOrdenado(conteudo) {
         linhas += `
             <div class="border border-5 rounded-5 m-2 p-4 bg-light">
                 <div class="d-flex mb-3 justify-content-between align-items-center">
-                    <span>${lead.nome}</span>
+                    <span>Nome do lead: ${lead.nome}</span>
                     <span class="badge bg-${cores[lead.status]}">
                         ${status[lead.status]}
                     </span>
@@ -329,12 +322,32 @@ function alterarLead(alteracao) {
     );
 }
 
-function avancarLead(nome) {
-    let lead = getLead(nome);
-    lead.status++;
-    fs.writeFileSync(`db/leads/${nome}.json`, JSON.stringify(lead), (err) => {
-        console.log(err);
-    });
+function registrarAtividade(atividade) {
+    let lead = getLead(atividade.nome);
+    if (atividade.avancar) {
+        lead.status++;
+    }
+    if (lead.status == 4) {
+        deletarLead(lead.nome);
+    } else {
+        fs.writeFileSync(
+            `db/leads/${lead.nome}.json`,
+            JSON.stringify(lead),
+            (err) => {
+                console.log(err);
+            }
+        );
+        gravarHistorico(
+            atividade.nome,
+            atividade.nomeVendedor,
+            atividade.historico
+        );
+        gerarAtividade(
+            atividade.nome,
+            atividade.nomeVendedor,
+            atividade.historico
+        );
+    }
 }
 
 function gravarHistorico(nomeLead, nomeVendedor, historico) {
