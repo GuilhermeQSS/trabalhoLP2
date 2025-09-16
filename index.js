@@ -5,13 +5,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const port = 3000;
-const status = [
-    "Inicial",
-    "Proposta",
-    "Negociação",
-    "Fechamento",
-    "Finalizada",
-];
+const status = ["Inicial", "Proposta", "Negociação", "Fechamento"];
 function converterTipo(arquivo) {
     let extensao = path.extname(arquivo);
     switch (extensao) {
@@ -39,32 +33,51 @@ const server = http.createServer((req, res) => {
                     status: 0,
                     historico: "",
                 };
-                cadastrarNovoLead(novoLead);
-                res.writeHead(302, { Location: "/cadastrarLead.html" });
-                res.end();
+                if (!fs.existsSync(`db/leads/${novoLead.nome}.json`)) {
+                    cadastrarNovoLead(novoLead, res);
+                    res.writeHead(302, { Location: "/cadastrarLead.html" });
+                    res.end();
+                } else {
+                    res.writeHead(302, {
+                        Location: "/erroCadastroDuplicado.html",
+                    });
+                    res.end();
+                }
                 break;
             case "/deletarLead":
-                deletarLead(consulta.id);
+                deletarLead(consulta.nome);
                 res.writeHead(302, { Location: "/deletarLead.html" });
                 res.end();
                 break;
             case "/alterarLead":
                 const alteracao = {
-                    id: consulta.id,
+                    nome: consulta.nome,
                     campo: consulta.campo,
                     novoConteudo: consulta.novoConteudo,
                 };
+                if (alteracao.campo === "nome") {
+                    if (fs.existsSync(`db/leads/${alteracao.nome}.json`)) {
+                        res.writeHead(302, {
+                            Location: "/erroAlterarNome.html",
+                        });
+                        return res.end();
+                    }
+                }
                 alterarLead(alteracao);
                 res.writeHead(302, { Location: "/alterarLead.html" });
                 res.end();
                 break;
             case "/registrarAtividade":
                 if (consulta.avancar) {
-                    avancarLead(consulta.idLead);
+                    avancarLead(consulta.nome);
                 }
-                gravarHistorico(consulta.idLead, consulta.historico);
+                gravarHistorico(
+                    consulta.nome,
+                    consulta.nomeVendedor,
+                    consulta.historico
+                );
                 gerarAtividade(
-                    consulta.idLead,
+                    consulta.nome,
                     consulta.nomeVendedor,
                     consulta.historico
                 );
@@ -96,7 +109,7 @@ const server = http.createServer((req, res) => {
             res.write(conteudo);
             res.end();
         } else {
-            fs.readFile("public/404.html", (err, conteudo) => {
+            fs.readFile("public/erro404.html", (err, conteudo) => {
                 res.writeHead(404, { "Content-Type": "text/html" });
                 res.write(conteudo);
                 res.end();
@@ -122,8 +135,8 @@ function getLeads() {
     return leads;
 }
 
-function getLead(id) {
-    return JSON.parse(fs.readFileSync(`db/leads/${id}.json`));
+function getLead(nome) {
+    return JSON.parse(fs.readFileSync(`db/leads/${nome}.json`));
 }
 
 function desenharTabelaLeads(conteudo) {
@@ -144,11 +157,10 @@ function desenharTabelaLeads(conteudo) {
 }
 
 function desenharOpcoesDeLead(conteudo) {
-    const leads = getLeads();
     let linhas = "";
-    leads.forEach((lead) => {
+    getLeads().forEach((lead) => {
         linhas += `
-        <option value="${lead.id}">${lead.nome}</option>
+        <option value="${lead.nome}">${lead.nome}</option>
         `;
     });
     return conteudo.replace(
@@ -163,7 +175,6 @@ function desenharOpcoesDeLead(conteudo) {
 function desenharLeadsOrdenado(conteudo) {
     let leads = getLeads();
     let linhas = "";
-    let historico = "";
     leads = leads.sort((a, b) => b.status - a.status);
     const cores = {
         0: "info",
@@ -172,12 +183,6 @@ function desenharLeadsOrdenado(conteudo) {
         3: "danger",
     };
     leads.forEach((lead) => {
-        historico = "";
-        if (lead.historico) {
-            lead.historico.split(";").forEach((hist) => {
-                historico += `<li>${hist}</li>`;
-            });
-        }
         linhas += `
             <div class="border border-5 rounded-5 m-2 p-4 bg-light">
                 <div class="d-flex mb-3 justify-content-between align-items-center">
@@ -186,18 +191,7 @@ function desenharLeadsOrdenado(conteudo) {
                         ${status[lead.status]}
                     </span>
                 </div>
-                <button class="btn btn-secondary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#${
-                    lead.id
-                }" aria-expanded="false" aria-controls="collapseExample">
-                    Historico
-                </button>
-                <div class="collapse" id="${lead.id}">
-                    <div class="card card-body">
-                        <ol>
-                            ${historico}
-                        </ol>
-                    </div>
-                </div>
+                <p>${lead.historico}</p>
             </div>
         `;
     });
@@ -206,12 +200,11 @@ function desenharLeadsOrdenado(conteudo) {
 }
 
 function desenharOpcoesComStatus(conteudo) {
-    const leads = getLeads();
     let linhas = "";
-    leads.forEach((lead) => {
+    getLeads().forEach((lead) => {
         if (lead.status != 4) {
             linhas += `
-            <option value="${lead.id}">${lead.nome} - ${
+            <option value="${lead.nome}">${lead.nome} : ${
                 status[lead.status]
             }</option>
             `;
@@ -227,10 +220,9 @@ function desenharOpcoesComStatus(conteudo) {
 }
 
 function desenharContagemDeStatus(conteudo) {
-    const leads = getLeads();
     let qtde = [0, 0, 0, 0];
-    leads.forEach((lead) => {
-        if (lead.status != 4) {
+    getLeads().forEach((lead) => {
+        if (lead.status != 3) {
             qtde[lead.status]++;
         }
     });
@@ -254,22 +246,20 @@ function cadastrarNovoLead(novoLead) {
     if (!fs.existsSync("db/leads")) {
         fs.mkdirSync("db/leads");
     }
-    if (!fs.existsSync(`db/leads/${novoLead.id}.json`)) {
-        fs.writeFileSync(
-            `db/leads/${novoLead.id}.json`,
-            JSON.stringify(novoLead),
-            (err) => {
-                console.log(err);
-            }
-        );
-    }
+    fs.writeFileSync(
+        `db/leads/${novoLead.nome}.json`,
+        JSON.stringify(novoLead),
+        (err) => {
+            console.log(err);
+        }
+    );
 }
 
-function deletarLead(id) {
-    fs.unlinkSync(`db/leads/${id}.json`);
+function deletarLead(nome) {
+    fs.unlinkSync(`db/leads/${nome}.json`);
 }
 
-function gerarAtividade(idLead, nomeVendedor, historico) {
+function gerarAtividade(nomeLead, nomeVendedor, historico) {
     if (!fs.existsSync("db")) {
         fs.mkdirSync("db");
     }
@@ -297,7 +287,7 @@ function gerarAtividade(idLead, nomeVendedor, historico) {
         mes +
         "-" +
         ano;
-    const lead = getLead(idLead);
+    const lead = getLead(nomeLead);
     const atividade = {
         nomeVendedor: nomeVendedor,
         nomeLead: lead.nome,
@@ -314,46 +304,50 @@ function gerarAtividade(idLead, nomeVendedor, historico) {
 }
 
 function alterarLead(alteracao) {
-    let lead = JSON.parse(fs.readFileSync(`db/leads/${alteracao.id}.json`));
+    const leadOriginalNome = alteracao.nome;
+    let novoLead = JSON.parse(
+        fs.readFileSync(`db/leads/${leadOriginalNome}.json`)
+    );
     switch (alteracao.campo) {
         case "nome":
-            lead.nome = alteracao.novoConteudo;
+            novoLead.nome = alteracao.novoConteudo;
             break;
         case "telefone":
-            lead.telefone = alteracao.novoConteudo;
+            novoLead.telefone = alteracao.novoConteudo;
             break;
         case "endereco":
-            lead.endereco = alteracao.novoConteudo;
+            novoLead.endereco = alteracao.novoConteudo;
             break;
     }
+    deletarLead(leadOriginalNome);
     fs.writeFileSync(
-        `db/leads/${alteracao.id}.json`,
-        JSON.stringify(lead),
+        `db/leads/${novoLead.nome}.json`,
+        JSON.stringify(novoLead),
         (err) => {
             console.log(err);
         }
     );
 }
 
-function avancarLead(id) {
-    let lead = getLead(id);
+function avancarLead(nome) {
+    let lead = getLead(nome);
     lead.status++;
-    fs.writeFileSync(`db/leads/${id}.json`, JSON.stringify(lead), (err) => {
+    fs.writeFileSync(`db/leads/${nome}.json`, JSON.stringify(lead), (err) => {
         console.log(err);
     });
 }
 
-function gravarHistorico(idLead, historico) {
-    let lead = getLead(idLead);
-    if (lead.historico) {
-        lead.historico += ";" + historico;
-    } else {
-        lead.historico = historico;
-    }
+function gravarHistorico(nomeLead, nomeVendedor, historico) {
+    let lead = getLead(nomeLead);
+    lead.historico = historico + " - " + nomeVendedor;
 
-    fs.writeFileSync(`db/leads/${idLead}.json`, JSON.stringify(lead), (err) => {
-        console.log(err);
-    });
+    fs.writeFileSync(
+        `db/leads/${nomeLead}.json`,
+        JSON.stringify(lead),
+        (err) => {
+            console.log(err);
+        }
+    );
 }
 //menu();
 
